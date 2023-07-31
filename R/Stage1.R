@@ -325,14 +325,16 @@ Stage1 <- function(filename,traits,effects=NULL,solver="asreml",
   
   ik <- which(!sapply(vcov,is.null))
   vcov <- vcov[ik]
-  expt.in.env <- expt.in.env[ik]
+  expt.in.env <- lapply(expt.in.env, function(x) intersect(x,names(vcov)))
+  ikev <- which(sapply(expt.in.env,length) > 0)
+  expt.in.env <- expt.in.env[ikev]
   blue.out$env <- data$env[match(blue.out$expt,data$expt)]
   
   nee <- sapply(expt.in.env,length)
   iu <- which(nee==1)
   if (length(iu) > 0) {
-    tmp <- names(vcov)[iu]
-    names(vcov)[iu] <- blue.out$env[match(tmp,blue.out$expt)]
+    tmp <- unlist(expt.in.env[iu])
+    names(vcov)[names(vcov) %in% tmp] <- blue.out$env[match(tmp,blue.out$expt)]
   }
   
   for (j in which(nee > 1)) {
